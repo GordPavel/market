@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_PATH" value="logs"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{dd-MM HH:mm:ss} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="sqlAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>
+                %d{dd-MM HH:mm:ss} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n
+            </pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/sql-%d{dd.MM-HH:mm}.log</fileNamePattern>
+            <TimeBasedFileNamingAndTriggeringPolicy class="com.example.market.StartupTimeBasedTriggeringPolicy"/>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="org.hibernate.hql" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="sqlAppender"/>
+    </logger>
+
+    <logger name="org.hibernate.SQL" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="sqlAppender"/>
+    </logger>
+
+    <root level="warn">
+        <appender-ref ref="console"/>
+    </root>
+</configuration>
