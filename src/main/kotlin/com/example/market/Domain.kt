@@ -39,7 +39,7 @@ data class Product(
 		@Id
 		@GeneratedValue(generator = "uuid2")
 		@GenericGenerator(name = "uuid2" , strategy = "org.hibernate.id.UUIDGenerator")
-		@Column(name = "id" , columnDefinition = "VARCHAR(255)")
+		@Column(name = "id" , columnDefinition = "CHAR(36)")
 		var id : UUID? ,
 
 		@NonNull
@@ -83,7 +83,7 @@ data class ProductPrice(
 		@Id
 		@GeneratedValue(generator = "uuid2")
 		@GenericGenerator(name = "uuid2" , strategy = "org.hibernate.id.UUIDGenerator")
-		@Column(name = "id" , columnDefinition = "VARCHAR(255)")
+		@Column(name = "id" , columnDefinition = "CHAR(36)")
 		var id : UUID? ,
 
 		@NonNull
