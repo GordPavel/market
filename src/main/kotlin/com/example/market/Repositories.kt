@@ -6,7 +6,7 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Propagation.REQUIRED
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 import java.util.stream.Stream
 
@@ -15,7 +15,7 @@ import java.util.stream.Stream
 interface ProductRepository : PagingAndSortingRepository<Product , UUID> {
 
 	@Query("from Product prod inner join fetch prod.prices price where :date between price.startDate and price.endDate")
-	fun listWithPrices(date : LocalDateTime) : Stream<Product>
+	fun listWithPrices(date : LocalDate) : Stream<Product>
 }
 
 @Repository

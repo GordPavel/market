@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod.PUT
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime.now
-import java.time.ZoneId.systemDefault
-import java.time.ZonedDateTime
+import java.time.LocalDate
+import java.time.LocalDate.now
 import java.util.*
 
 @RestController
@@ -45,9 +44,9 @@ class ProductController {
 	@RequestMapping("/list" , method = [GET] , produces = [APPLICATION_JSON_UTF8_VALUE])
 	fun listProducts(
 			@RequestParam(required = false)
-			@DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss z")
-			date : ZonedDateTime?
+			@DateTimeFormat(pattern = "dd.MM.yyyy")
+			date : LocalDate?
 	                ) =
-			priceManager.listProducts(date?.withZoneSameInstant(systemDefault())?.toLocalDateTime() ?: now())
+			priceManager.listProducts(date ?: now())
 					.mapKeys { objectMapper.writeValueAsString(it.key) }
 }

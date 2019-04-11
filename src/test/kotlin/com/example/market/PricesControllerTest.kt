@@ -18,7 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.web.util.UriComponentsBuilder
-import java.time.ZonedDateTime.now
+import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatter.ofPattern
 
@@ -39,7 +39,7 @@ class PricesControllerTest {
 	lateinit var objectMapper : ObjectMapper
 
 	var product = Product("Random name")
-	val timePattern : DateTimeFormatter = ofPattern("dd.MM.yyyy HH:mm:ss z")
+	val timePattern : DateTimeFormatter = ofPattern("dd.MM.yyyy")
 
 	@Before
 	fun setUp() {
@@ -58,7 +58,7 @@ class PricesControllerTest {
 		val response = restTemplate.exchange(
 				UriComponentsBuilder.fromPath("/prices/new")
 						.queryParam("productId" , product.id!!)
-						.queryParam("startDate" , now().format(timePattern))
+						.queryParam("startDate" , now().minusDays(1).format(timePattern))
 						.queryParam("endDate" , now().plusDays(1).format(timePattern))
 						.queryParam("price" , price)
 						.build()
@@ -72,7 +72,7 @@ class PricesControllerTest {
 
 		val listResponse = restTemplate.exchange(
 				UriComponentsBuilder.fromPath("/products/list")
-						.queryParam("date" , now().plusHours(1).format(timePattern))
+						.queryParam("date" , now().format(timePattern))
 						.build()
 						.toUriString() ,
 				GET ,

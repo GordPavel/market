@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.transaction.TransactionSystemException
 import java.math.BigDecimal
-import java.time.LocalDateTime.now
+import java.time.LocalDate.now
 
 @RunWith(SpringRunner::class)
 @SpringBootTest

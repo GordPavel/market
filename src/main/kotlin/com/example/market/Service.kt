@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Propagation.REQUIRES_NEW
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
@@ -17,11 +17,11 @@ import java.util.stream.Collectors.toMap
 import javax.persistence.criteria.Root
 
 interface ProductPricesManager {
-	fun listProducts(date : LocalDateTime) : Map<Product , BigDecimal>
+	fun listProducts(date : LocalDate) : Map<Product , BigDecimal>
 
 	fun addPrice(productId : UUID ,
-	             startDate : LocalDateTime ,
-	             endDate : LocalDateTime ,
+	             startDate : LocalDate ,
+	             endDate : LocalDate ,
 	             price : BigDecimal)
 }
 
@@ -43,7 +43,7 @@ class ProductPricesManagerImpl : ProductPricesManager {
 	private lateinit var productPricesManager : ProductPricesManagerImpl
 
 	@Transactional(readOnly = true)
-	override fun listProducts(date : LocalDateTime) : Map<Product , BigDecimal> {
+	override fun listProducts(date : LocalDate) : Map<Product , BigDecimal> {
 		val firstCollector = toMap<Product , Product , BigDecimal>({ it })
 		{ pair -> pair.getPrice(date)!! }
 		val clearingCollector = toMap<MutableMap.MutableEntry<Product , BigDecimal> , Product , BigDecimal>({ it.key })
@@ -58,7 +58,7 @@ class ProductPricesManagerImpl : ProductPricesManager {
 	}
 
 	@Transactional
-	override fun addPrice(productId : UUID , startDate : LocalDateTime , endDate : LocalDateTime , price : BigDecimal) {
+	override fun addPrice(productId : UUID , startDate : LocalDate , endDate : LocalDate , price : BigDecimal) {
 		val product =
 				productRepository.findByIdOrNull(productId)
 				?: throw IllegalArgumentException("No product with $productId id")
@@ -116,8 +116,8 @@ class ProductPricesManagerImpl : ProductPricesManager {
 
 	@Transactional(readOnly = true)
 	fun listInnerOverlapPricePeriods(productID : UUID ,
-	                                 startDate : LocalDateTime ,
-	                                 endDate : LocalDateTime) : Iterable<ProductPrice> =
+	                                 startDate : LocalDate ,
+	                                 endDate : LocalDate) : Iterable<ProductPrice> =
 			productPriceRepository.findAll { prodPrice , query , builder ->
 				builder.and(builder.greaterThan(getStartDate(prodPrice) , startDate) ,
 				            builder.lessThan(getEndDate(prodPrice) , endDate) ,
@@ -126,8 +126,8 @@ class ProductPricesManagerImpl : ProductPricesManager {
 
 	@Transactional(readOnly = true)
 	fun listLeftOverlapPricePeriods(productID : UUID ,
-	                                startDate : LocalDateTime ,
-	                                endDate : LocalDateTime) : Iterable<ProductPrice> =
+	                                startDate : LocalDate ,
+	                                endDate : LocalDate) : Iterable<ProductPrice> =
 			productPriceRepository.findAll { prodPrice , query , builder ->
 				builder.and(builder.lessThan(getStartDate(prodPrice) , startDate) ,
 				            builder.greaterThan(getEndDate(prodPrice) , startDate) ,
@@ -137,8 +137,8 @@ class ProductPricesManagerImpl : ProductPricesManager {
 
 	@Transactional(readOnly = true)
 	fun listRightOverlapPricePeriods(productID : UUID ,
-	                                 startDate : LocalDateTime ,
-	                                 endDate : LocalDateTime) : Iterable<ProductPrice> =
+	                                 startDate : LocalDate ,
+	                                 endDate : LocalDate) : Iterable<ProductPrice> =
 			productPriceRepository.findAll { prodPrice , query , builder ->
 				builder.and(builder.greaterThan(getStartDate(prodPrice) , startDate) ,
 				            builder.lessThan(getStartDate(prodPrice) , endDate) ,
@@ -148,16 +148,16 @@ class ProductPricesManagerImpl : ProductPricesManager {
 
 	@Transactional(readOnly = true)
 	fun listOuterOverlapPricePeriods(productID : UUID ,
-	                                 startDate : LocalDateTime ,
-	                                 endDate : LocalDateTime) : Iterable<ProductPrice> =
+	                                 startDate : LocalDate ,
+	                                 endDate : LocalDate) : Iterable<ProductPrice> =
 			productPriceRepository.findAll { prodPrice , query , builder ->
 				builder.and(builder.lessThan(getStartDate(prodPrice) , startDate) ,
 				            builder.greaterThan(getEndDate(prodPrice) , endDate) ,
 				            builder.equal(getProductId(prodPrice) , productID))
 			}
 
-	private fun getStartDate(prodPrice : Root<ProductPrice>) = prodPrice.get<LocalDateTime>("startDate")
-	private fun getEndDate(prodPrice : Root<ProductPrice>) = prodPrice.get<LocalDateTime>("endDate")
+	private fun getStartDate(prodPrice : Root<ProductPrice>) = prodPrice.get<LocalDate>("startDate")
+	private fun getEndDate(prodPrice : Root<ProductPrice>) = prodPrice.get<LocalDate>("endDate")
 	private fun getProductId(prodPrice : Root<ProductPrice>) = prodPrice.get<Product>("product").get<UUID>("id")
 
 }

@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
@@ -47,7 +47,7 @@ class AddingPricesTest {
 		product = Product("Random name")
 		product = productRepository.save(product)
 
-		var startDate = LocalDateTime.ofEpochSecond(0 , 0 , offset)
+		var startDate = LocalDate.ofEpochDay(0)
 		do {
 			val endDate = startDate.plusDays(random.nextLong((365 * 0.5).toLong() , (365 * 1.5).toLong()))
 			val price = BigDecimal.valueOf(random.nextDouble(0.0 , 200.0)).setScale(2 , RoundingMode.CEILING)
@@ -61,7 +61,7 @@ class AddingPricesTest {
 			productPricesManager.addPrice(product.id!! , startDate , endDate , price)
 
 			startDate = endDate
-		} while(endDate.isBefore(LocalDateTime.now()))
+		} while(endDate.isBefore(LocalDate.now()))
 	}
 
 	@Test
@@ -138,9 +138,7 @@ class AddingPricesTest {
 		assertEquals(secondOldPrice , listProducts.values.first())
 	}
 
-	private fun randomDateWithBounds(origin : LocalDateTime , bound : LocalDateTime) =
-			LocalDateTime.ofEpochSecond(random.nextLong(origin.toEpochSecond(offset) ,
-			                                            bound.toEpochSecond(offset)) ,
-			                            0 ,
-			                            offset)
+	private fun randomDateWithBounds(origin : LocalDate , bound : LocalDate) =
+			LocalDate.ofEpochDay(random.nextLong(origin.toEpochDay() ,
+			                                     bound.toEpochDay()))
 }

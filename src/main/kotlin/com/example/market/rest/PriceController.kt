@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.math.BigDecimal
-import java.time.ZoneId.systemDefault
-import java.time.ZonedDateTime
+import java.time.LocalDate
 import java.util.*
 
 @RestController
@@ -24,16 +23,13 @@ class PriceController {
 	@RequestMapping("/new" , method = [RequestMethod.PUT])
 	@ResponseStatus(value = CREATED)
 	fun newProduct(@RequestParam productId : UUID ,
-	               @RequestParam(defaultValue = "01.01.1970 01:00:00 GMT")
-	               @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss z")
-	               startDate : ZonedDateTime ,
-	               @RequestParam(defaultValue = "31.12.4000 23:59:59 GMT")
-	               @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss z")
-	               endDate : ZonedDateTime ,
+	               @RequestParam(defaultValue = "01.01.1970")
+	               @DateTimeFormat(pattern = "dd.MM.yyyy")
+	               startDate : LocalDate ,
+	               @RequestParam(defaultValue = "31.12.4000")
+	               @DateTimeFormat(pattern = "dd.MM.yyyy")
+	               endDate : LocalDate ,
 	               @RequestParam price : BigDecimal) =
-			priceManager.addPrice(productId ,
-			                      startDate.withZoneSameInstant(systemDefault()).toLocalDateTime() ,
-			                      endDate.withZoneSameInstant(systemDefault()).toLocalDateTime() ,
-			                      price)
+			priceManager.addPrice(productId , startDate , endDate , price)
 
 }

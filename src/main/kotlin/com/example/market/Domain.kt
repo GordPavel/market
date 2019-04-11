@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import org.hibernate.annotations.GenericGenerator
 import org.springframework.lang.NonNull
 import java.math.BigDecimal
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.util.*
 import javax.persistence.Basic
 import javax.persistence.Column
@@ -59,10 +59,10 @@ data class Product(
 	constructor(name : String) : this(null , name , 1 , emptyArray())
 
 	@Transient
-	fun getPrice(date : LocalDateTime) = prices
+	fun getPrice(date : LocalDate) = prices
 			.firstOrNull { isDateInsideRange(date , it.startDate , it.endDate) }?.price
 
-	private fun isDateInsideRange(date : LocalDateTime , startRange : LocalDateTime , endRange : LocalDateTime) =
+	private fun isDateInsideRange(date : LocalDate , startRange : LocalDate , endRange : LocalDate) =
 			date.isAfter(startRange) and date.isBefore(endRange)
 
 	override fun equals(other : Any?) : Boolean {
@@ -89,11 +89,11 @@ data class ProductPrice(
 
 		@NonNull
 		@Column(name = "start_date_time")
-		var startDate : LocalDateTime ,
+		var startDate : LocalDate ,
 
 		@NonNull
 		@Column(name = "end_date_time")
-		var endDate : LocalDateTime ,
+		var endDate : LocalDate ,
 
 		@Basic
 		@NonNull
@@ -116,8 +116,8 @@ data class ProductPrice(
 		var product : Product) {
 
 	constructor(price : BigDecimal ,
-	            startDate : LocalDateTime ,
-	            endDate : LocalDateTime ,
+	            startDate : LocalDate ,
+	            endDate : LocalDate ,
 	            product : Product) :
 			this(null , startDate , endDate , price , 1 , 0 , product)
 
