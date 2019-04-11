@@ -1,9 +1,9 @@
 package com.example.market
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.After
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,11 +14,9 @@ import org.springframework.http.HttpMethod.DELETE
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus.ACCEPTED
 import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.MediaType.TEXT_PLAIN
+import org.springframework.http.MediaType.APPLICATION_JSON_UTF8
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.web.util.UriComponentsBuilder
-import java.util.function.Predicate
-import java.util.regex.Pattern
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,10 +28,8 @@ class ProductsControllerTest {
 	@Autowired
 	lateinit var productRepository : ProductRepository
 
-	val uuidPredicate : Predicate<String> =
-			Pattern.compile(
-					"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-			               ).asPredicate()
+	@Autowired
+	private lateinit var objectMapper : ObjectMapper
 
 	@After
 	fun tearDown() = productRepository.deleteAll()
@@ -47,34 +43,33 @@ class ProductsControllerTest {
 						.toUriString() ,
 				PUT ,
 				HttpEntity(null , HttpHeaders().apply {
-					contentType = TEXT_PLAIN
+					contentType = APPLICATION_JSON_UTF8
 				}) ,
 				String::class.java)
 		assertEquals(CREATED , response.statusCode)
-		assertTrue(uuidPredicate.test(response.body!!))
 	}
 
 	@Test
 	fun delete() {
-		val savedUUID = restTemplate.exchange(
+		val product = objectMapper.readValue(restTemplate.exchange(
 				UriComponentsBuilder.fromPath("/products/new")
 						.queryParam("name" , "Random name")
 						.build()
 						.toUriString() ,
 				PUT ,
 				HttpEntity(null , HttpHeaders().apply {
-					contentType = TEXT_PLAIN
+					contentType = APPLICATION_JSON_UTF8
 				}) ,
-				String::class.java).body!!
+				String::class.java).body!! , Product::class.java)
+		val savedUUID = product.id!!
+
 		val deleteResponse = restTemplate.exchange(
 				UriComponentsBuilder.fromPath("/products/delete")
 						.queryParam("id" , savedUUID)
 						.build()
 						.toUriString() ,
 				DELETE ,
-				HttpEntity(null , HttpHeaders().apply {
-					contentType = TEXT_PLAIN
-				}) ,
+				HttpEntity(null , HttpHeaders()) ,
 				Void::class.java)
 		assertEquals(ACCEPTED , deleteResponse.statusCode)
 	}

@@ -9,7 +9,6 @@ import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus.ACCEPTED
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE
-import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod.DELETE
 import org.springframework.web.bind.annotation.RequestMethod.GET
@@ -35,9 +34,9 @@ class ProductController {
 	@Autowired
 	private lateinit var objectMapper : ObjectMapper
 
-	@RequestMapping("/new" , method = [PUT] , produces = [TEXT_PLAIN_VALUE])
+	@RequestMapping("/new" , method = [PUT] , produces = [APPLICATION_JSON_UTF8_VALUE])
 	@ResponseStatus(value = CREATED)
-	fun newProduct(@RequestParam name : String) : String = productRepository.save(Product(name)).id!!.toString()
+	fun newProduct(@RequestParam name : String) = productRepository.save(Product(name))
 
 	@RequestMapping("/delete" , method = [DELETE])
 	@ResponseStatus(value = ACCEPTED)
