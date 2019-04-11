@@ -63,7 +63,7 @@ data class Product(
 			.firstOrNull { isDateInsideRange(date , it.startDate , it.endDate) }?.price
 
 	private fun isDateInsideRange(date : LocalDate , startRange : LocalDate , endRange : LocalDate) =
-			date.isAfter(startRange) and date.isBefore(endRange)
+			!date.isBefore(startRange) and !date.isAfter(endRange)
 
 	override fun equals(other : Any?) : Boolean {
 		val product = other as Product?
