@@ -8,6 +8,8 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -48,7 +50,7 @@ class AddingPricesTest {
 		var startDate = LocalDateTime.ofEpochSecond(0 , 0 , offset)
 		do {
 			val endDate = startDate.plusDays(random.nextLong((365 * 0.5).toLong() , (365 * 1.5).toLong()))
-			val price = random.nextDouble(0.0 , 200.0)
+			val price = BigDecimal.valueOf(random.nextDouble(0.0 , 200.0)).setScale(2 , RoundingMode.CEILING)
 
 			list.addLast(ProductPrice(price ,
 			                          startDate ,
@@ -78,18 +80,18 @@ class AddingPricesTest {
 	fun overridePeriod() {
 		val period = list[1]
 //		check new period can override old one
-		val newPrice = random.nextDouble(0.0 , 200.0)
+		val price = BigDecimal.valueOf(random.nextDouble(0.0 , 200.0)).setScale(2 , RoundingMode.CEILING)
 		val oldStartDate = period.startDate
 		val oldEndDate = period.endDate
 		val newStartDate = oldStartDate.minusDays(1)
 		val newEndDate = oldEndDate.plusDays(1)
 
-		productPricesManager.addPrice(product.id!! , newStartDate , newEndDate , newPrice)
+		productPricesManager.addPrice(product.id!! , newStartDate , newEndDate , price)
 
 		val listProducts = productPricesManager.listProducts(randomDateWithBounds(newStartDate , newEndDate))
 		assertEquals(1 , listProducts.entries.size)
 		assertEquals(product.id!! , listProducts.keys.first().id!!)
-		assertEquals(newPrice , listProducts.values.first())
+		assertEquals(price , listProducts.values.first())
 	}
 
 	@Test
@@ -97,7 +99,7 @@ class AddingPricesTest {
 		val period = list[list.size / 2]
 //		check new period can split old one
 		val oldPrice = period.price
-		val newPrice = random.nextDouble(0.0 , 200.0)
+		val newPrice = BigDecimal.valueOf(random.nextDouble(0.0 , 200.0)).setScale(2 , RoundingMode.CEILING)
 		val oldStartDate = period.startDate
 		val oldEndDate = period.endDate
 		val newStartDate = oldStartDate.plusDays(10)
@@ -120,7 +122,7 @@ class AddingPricesTest {
 //		check new period can stay between old periods
 		val firstOldPrice = firstPeriod.price
 		val secondOldPrice = secondPeriod.price
-		val newPrice = random.nextDouble(0.0 , 200.0)
+		val newPrice = BigDecimal.valueOf(random.nextDouble(0.0 , 200.0)).setScale(2 , RoundingMode.CEILING)
 		val oldStartDate = firstPeriod.startDate
 		val oldEndDate = secondPeriod.endDate
 		val newStartDate = randomDateWithBounds(firstPeriod.startDate.plusDays(10) , firstPeriod.endDate)

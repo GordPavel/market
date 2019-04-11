@@ -6,6 +6,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation.REQUIRES_NEW
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -15,12 +17,12 @@ import java.util.stream.Collectors.toMap
 import javax.persistence.criteria.Root
 
 interface ProductPricesManager {
-	fun listProducts(date : LocalDateTime) : Map<Product , Double>
+	fun listProducts(date : LocalDateTime) : Map<Product , BigDecimal>
 
 	fun addPrice(productId : UUID ,
 	             startDate : LocalDateTime ,
 	             endDate : LocalDateTime ,
-	             price : Double)
+	             price : BigDecimal)
 }
 
 @Service
@@ -41,11 +43,11 @@ class ProductPricesManagerImpl : ProductPricesManager {
 	private lateinit var productPricesManager : ProductPricesManagerImpl
 
 	@Transactional(readOnly = true)
-	override fun listProducts(date : LocalDateTime) : Map<Product , Double> {
-		val firstCollector = toMap<Product , Product , Double>({ it })
+	override fun listProducts(date : LocalDateTime) : Map<Product , BigDecimal> {
+		val firstCollector = toMap<Product , Product , BigDecimal>({ it })
 		{ pair -> pair.getPrice(date)!! }
-		val clearingCollector = toMap<MutableMap.MutableEntry<Product , Double> , Product , Double>({ it.key })
-		{ it.value }
+		val clearingCollector = toMap<MutableMap.MutableEntry<Product , BigDecimal> , Product , BigDecimal>({ it.key })
+		{ it.value.setScale(2 , RoundingMode.HALF_EVEN) }
 
 		return productRepository.listWithPrices(date)
 				.collect(collectingAndThen(firstCollector) { map ->
@@ -56,7 +58,7 @@ class ProductPricesManagerImpl : ProductPricesManager {
 	}
 
 	@Transactional
-	override fun addPrice(productId : UUID , startDate : LocalDateTime , endDate : LocalDateTime , price : Double) {
+	override fun addPrice(productId : UUID , startDate : LocalDateTime , endDate : LocalDateTime , price : BigDecimal) {
 		val product =
 				productRepository.findByIdOrNull(productId)
 				?: throw IllegalArgumentException("No product with $productId id")

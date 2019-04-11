@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import org.hibernate.annotations.GenericGenerator
 import org.springframework.lang.NonNull
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.Basic
@@ -98,7 +99,7 @@ data class ProductPrice(
 		@NonNull
 		@Column(name = "price")
 		@DecimalMin(minValue = 0.0 , message = "Price can't be negative")
-		var price : Double ,
+		var price : BigDecimal ,
 
 		@Version
 		@Column(name = "version")
@@ -114,7 +115,7 @@ data class ProductPrice(
 		@JoinColumn(name = "product_id" , updatable = false)
 		var product : Product) {
 
-	constructor(price : Double ,
+	constructor(price : BigDecimal ,
 	            startDate : LocalDateTime ,
 	            endDate : LocalDateTime ,
 	            product : Product) :
@@ -157,6 +158,6 @@ annotation class DecimalMin(val message : String = "Value can't be negative" ,
                             val payload : Array<KClass<out Payload>> = [] ,
                             val minValue : Double)
 
-class DecimalMinValidator(private val minValue : Double = 0.0) : ConstraintValidator<DecimalMin , Double> {
-	override fun isValid(value : Double , context : ConstraintValidatorContext) = value >= minValue
+class DecimalMinValidator(private val minValue : Double = 0.0) : ConstraintValidator<DecimalMin , BigDecimal> {
+	override fun isValid(value : BigDecimal , context : ConstraintValidatorContext) = value.toDouble() >= minValue
 }

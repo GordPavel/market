@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.math.BigDecimal
 import java.time.ZoneId.systemDefault
 import java.time.ZonedDateTime
 import java.util.*
@@ -29,7 +30,7 @@ class PriceController {
 	               @RequestParam(defaultValue = "31.12.4000 23:59:59 GMT")
 	               @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm:ss z")
 	               endDate : ZonedDateTime ,
-	               @RequestParam price : Double) =
+	               @RequestParam price : BigDecimal) =
 			priceManager.addPrice(productId ,
 			                      startDate.withZoneSameInstant(systemDefault()).toLocalDateTime() ,
 			                      endDate.withZoneSameInstant(systemDefault()).toLocalDateTime() ,

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.transaction.TransactionSystemException
+import java.math.BigDecimal
 import java.time.LocalDateTime.now
 
 @RunWith(SpringRunner::class)
@@ -43,7 +44,7 @@ class SimplePriceTest {
 	@Test
 	fun priceForOneProduct() {
 		val productId = product.id!!
-		var price = 50.0
+		var price = BigDecimal.valueOf(50.0).setScale(2).setScale(2)
 
 		productPricesManager.addPrice(productId , now().minusDays(1) , now().plusDays(1) , price)
 
@@ -53,7 +54,7 @@ class SimplePriceTest {
 		assertEquals(productId , listProducts.keys.first().id!!)
 		assertEquals(price , listProducts.values.first())
 
-		price = 100.0
+		price = BigDecimal.valueOf(100.0).setScale(2).setScale(2)
 		productPricesManager.addPrice(productId , now().plusDays(5) , now().plusDays(10) , price)
 
 		listProducts = productPricesManager.listProducts(now().plusDays(7))
@@ -71,7 +72,7 @@ class SimplePriceTest {
 
 	@Test
 	fun incorrectPrice() {
-		val price = -1.0
+		val price = BigDecimal.valueOf(-1.0).setScale(2)
 		assertThrows(TransactionSystemException::class.java) {
 			productPricesManager.addPrice(product.id!! , now().plusDays(5) , now().plusDays(10) , price)
 		}
@@ -79,8 +80,9 @@ class SimplePriceTest {
 
 	@Test
 	fun incorrectDates() {
+		val price = BigDecimal.valueOf(50.0).setScale(2)
 		assertThrows(TransactionSystemException::class.java) {
-			productPricesManager.addPrice(product.id!! , now().plusDays(5) , now().minusDays(5) , 50.0)
+			productPricesManager.addPrice(product.id!! , now().plusDays(5) , now().minusDays(5) , price)
 		}
 	}
 }

@@ -8,6 +8,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
+import java.math.BigDecimal
 import java.time.LocalDateTime.now
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
@@ -57,7 +58,7 @@ class MultipleProductsWithPricesTest {
 							productPricesManager.addPrice(product.id!! ,
 							                              startDate ,
 							                              endDate ,
-							                              random.nextDouble(0.0 , 200.0))
+							                              BigDecimal.valueOf(random.nextDouble(0.0 , 200.0)))
 							latch.countDown()
 						}
 					}
